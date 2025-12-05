@@ -1,0 +1,187 @@
+# Full MAX config: multi-scale conv + attention + semantic masking + full hypergraph
+# Loss weights are balanced dynamically via TCC
+
+# Experiment
+experiment:
+  name: "MAX_Full_HypergraphTypes_All"
+  description: "Full MAX: multi-scale conv + attention + semantic masking + full hypergraph + TCC dynamic loss balance"
+  type: "baseline"
+
+# Model
+model:
+  name: "EnhancedHyperGraphMAE"
+  hidden_dim: 384
+  latent_dim: 192
+  proj_dim: 256
+  heads: 8
+  num_layers: 4
+  mask_ratio: 0.7
+  dropout: 0.3
+  
+  # Multi-scale convolution (core)
+  multi_scale:
+    scales: [1, 2, 3]
+    max_scale: 3
+  
+  # Attention
+  attention:
+    temperature_init: 1.0
+    use_edge_weights: true
+
+# Training
+training:
+  max_steps: 50000     
+  batch_size: 128
+  learning_rate: 2e-4
+  weight_decay: 1e-4
+  # Fixed mask ratio for train/val
+  mask_ratio_min: 0.7
+  mask_ratio_max: 0.7
+  
+  gradient_accumulation_steps: 1
+  gradient_clip_norm: 1.0
+  use_amp: true
+  
+  # NaN detection and auto recovery
+  nan_detection_enabled: true
+  nan_checkpoint_recovery: true
+  nan_detection_frequency: 50
+  
+  # Gradient clipping config
+  grad_clip:
+    enabled: true
+    max_norm: 1.0
+    clip_type: "norm"
+  
+  # Scheduler: WSD (Warmup→Stable→Decay)
+  scheduler:
+    type: "WSD"
+    warmup_ratio: 0.02
+    stable_ratio: 0.70
+    min_lr: 1.0e-6
+    start_factor: 0.01
+  
+  val_ratio: 0.2
+  
+  log_every_n_steps: 100
+  save_checkpoint_every: 1000
+  
+  # Early stopping (aggressive)
+  early_stopping:
+    patience_steps: 12000
+    min_delta: 5e-4
+  
+  # TCC: dynamic loss balancing (replaces static weights)
+  tcc:
+    enabled: true
+    update_frequency: 25
+    tolerance: 0.04
+    adjustment_rate: 0.12
+    ema: 0.8
+    scale_ema: 0.8
+    adaptive_ratios:
+      # Two losses: reconstruction + edge
+      two_components:
+        primary: [0.55, 0.65]
+        secondary: [0.35, 0.45]
+      # Three losses (unused)
+      three_components:
+        primary: [0.40, 0.50]
+        auxiliary: [0.30, 0.40]
+        regularization: [0.15, 0.25]
+
+# Masking (semantic)
+masking:
+  strategy: "semantic"
+  node_mask_ratio: 0.7
+  edge_mask_ratio: 0.7
+  
+  # Semantic mask parameters
+  semantic:
+    semantic_priority: 0.7  # 70% semantic, 30% random
+    block_types: ["functional_group", "ring", "chain"]
+    min_block_size: 2
+    max_block_size: 8
+    preserve_important: true  # preserve important functional groups
+    # Disable jittering to keep fixed mask ratio
+    jittering:
+      enable: false
+    
+    # Important groups (lower mask probability)
+    important_groups:
+      - "carboxyl"
+      - "amino"
+      - "hydroxyl"
+      - "nitro"
+      - "cyano"
+      - "phosphate"
+
+# Data
+data:
+  dataloader:
+    num_workers: 4
+    pin_memory: true
+    persistent_workers: true
+    drop_last: true
+
+# Full hypergraph types
+hypergraph_types:
+  - bond
+  - ring
+  - functional_group
+  - hydrogen_bond
+  - conjugated_system
+
+# Features
+features:
+  # Atom features
+  atom:
+    continuous_features: ["atomic_num", "formal_charge", "total_num_hs"]
+    categorical_features: ["degree", "is_aromatic", "hybridization", "chiral_tag", "is_in_ring"]
+  
+  # Bond features
+  bond:
+    continuous_features: ["avg_hybridization"]
+    categorical_features: ["is_conjugated", "is_aromatic", "stereo", "is_in_ring", "is_rotatable", "bond_type"]
+  
+  # Hyperedge feature dimension
+  hyperedge_dim: 25
+
+# Hydrogen bond detection thresholds
+hydrogen_bonds:
+  base_distance_threshold: 3.5
+  angle_threshold: 120.0
+  donor_acceptor_distance: 4.0
+
+# Functional group SMARTS
+functional_groups:
+  carboxyl: "[CX3](=O)[OX2H1]"
+  hydroxyl: "[OX2H]"
+  amino: "[NX3;H2,H1;!$(NC=O)]"
+  nitro: "[NX3](=O)=O"
+  cyano: "[CX2]#N"
+  ketone: "[#6][CX3](=O)[#6]"
+  aldehyde: "[CX3H1](=O)[#6]"
+  amide: "[NX3][CX3](=[OX1])"
+  ether: "[OD2]([#6])[#6]"
+  thiol: "[SX2H]"
+
+# Paths
+paths:
+  checkpoint_dir: "checkpoints"
+  log_dir: "logs"
+
+# Validation (aggressive)
+validation:
+  enabled: true
+  interval_steps: 500
+  quick_batches: 30
+
+# Optuna tuning (for HPO only)
+tuning:
+  quick_steps: 500
+  full_steps: 20000
+  use_two_stage: true
+
+# Seed
+seed: 42
