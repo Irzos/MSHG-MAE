@@ -75,7 +75,7 @@ Use `scripts/preprocess_data.py` / `scripts/preprocess_semantic_blocks.py` toget
 
 The main training script expects `--data_dir` to contain multiple `batch_*.pt` files.
 
-## Training: self-supervised HyperGraph-MAE
+## Training: Multi-Scale Hypergraph Masked Autoencoder
 
 Basic training command:
 
