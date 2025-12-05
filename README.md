@@ -99,7 +99,7 @@ During training the script:
 - runs step-based training in `HyperGraphMAETrainer` with mixed precision and cosine mask-ratio scheduling;
 - writes logs and checkpoints under `output_dir/experiment_name`.
 
-## Stage‑2: Δ‑descriptor continued pretraining
+## Stage‑2: Δ‑descriptor continued pretraining (Δ-Property Alignment)
 
 To add RDKit-based Δ‑descriptor supervision (e.g., MolLogP / TPSA) on top of a self-supervised checkpoint:
 
@@ -126,10 +126,10 @@ This script:
 ## Core ideas
 
 The project centers on:
-- `EnhancedHyperGraphMAE` with multi-scale hypergraph convolution and attention-based aggregation;
+- `HyperGraphMAE` with multi-scale hypergraph convolution and attention-based aggregation;
 - semantic masking + self-supervised reconstruction and hyperedge prediction;
 - TCC-based dynamic loss balancing and a robust step-based training loop;
-- an Δ‑descriptor continued pretraining stage ( Δ-Property Alignment) that injects RDKit-derived property signal.
+- an Δ‑descriptor continued pretraining stage (Δ-Property Alignment) that injects RDKit-derived property signal.
 
 ## License
 
