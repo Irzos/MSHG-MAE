@@ -3,8 +3,9 @@
 ![PyTorch](https://img.shields.io/badge/PyTorch-2.8.0-ee4c2c)
 ![CUDA](https://img.shields.io/badge/CUDA-12.8-76b900)
 # MSHG-MAE: Multi-Scale Hypergraph Masked Autoencoder
+![Uploading 0237cac1ebec018d0d2171f5dfc43f51.png…]()
 
-This directory contains a compact implementation of a **multi-scale hypergraph masked autoencoder for molecular representations / drug fingerprints**.  
+This directory contains a compact implementation of a **Multi-Scale Hypergraph Masked Autoencoder with Δ-Property Alignment for Novel Molecular Representation Learning**.  
 It includes the core model, data processing pipeline, and training / analysis scripts.
 
 ## Project structure
