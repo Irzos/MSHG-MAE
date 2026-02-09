@@ -20,7 +20,7 @@ It includes the core model, data processing pipeline, and training / analysis sc
   - `continue_pretrain_with_descriptors.py`: second-stage pretraining with Δ‑descriptor supervision on top of a self-supervised checkpoint.
   - `convert_deepchem_to_hypergraphs.py`: convert DeepChem MolNet datasets into hypergraph batches (`batch_*.pt`).
   - `preprocess_data.py` / `preprocess_semantic_blocks.py`: preprocessing and semantic block helpers.
-  - `precompute_embeddings.py` : precompute molecule / protein embeddings for downstream tasks.
+  - `precompute_embeddings.py` : precompute molecule embeddings for downstream tasks.
   - `functional_group_clustering_experiment.py`: functional-group–centric clustering and analysis.
 - `config/`
   - `default_config.yaml`: example MAX configuration (multi-scale conv + attention + semantic masking + TCC).
@@ -120,7 +120,7 @@ This script:
 - optimizes the original reconstruction/edge losses together with the Δ‑loss (and optional absolute anchor loss), producing more property-aware molecular fingerprints.
 
 ## Other useful scripts
-- `scripts/precompute_embeddings.py`: jointly precompute protein + molecule embeddings (e.g., with ProtBert).
+- `scripts/precompute_embeddings.py`: precompute molecule embeddings.
 - `scripts/functional_group_clustering_experiment.py`: functional-group / semantic-block clustering and statistical analysis.
 
 ## Core ideas
